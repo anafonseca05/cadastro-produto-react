@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+// src/pages/Cadastro.jsx
+import React, { useEffect, useState } from 'react';
 import { Formik } from 'formik';
-import axios from 'axios';
+import { createProjeto, getProjetos } from '../services/projetoService';
 import './Cadastro.css';
 
 const Cadastro = () => {
@@ -10,16 +11,25 @@ const Cadastro = () => {
     // Função para enviar dados ao servidor
     const enviarDados = async (novoProjeto) => {
         try {
-            const response = await axios.post('http://localhost:8080/projeto', novoProjeto);
+            const response = await createProjeto(novoProjeto);
             console.log(response);
             setMensagem('Projeto cadastrado com sucesso!');
             // Atualiza a lista de projetos
-            setProjetos(prevProjetos => [...prevProjetos, response.data]);
+            setProjetos(prevProjetos => [...prevProjetos, response]);
         } catch (error) {
             console.error('Erro ao cadastrar projeto:', error);
             setMensagem('Erro ao cadastrar projeto. Tente novamente.');
         }
     };
+
+    const fetchProjetos = async () => {
+        const data = await getProjetos();
+        setProjetos(data);
+    };
+
+    useEffect(() => {
+        fetchProjetos();
+    }, []);
 
     return (
         <div className="cadastro-container">
@@ -62,7 +72,6 @@ const Cadastro = () => {
                                 name="id"
                                 disabled
                             />
-                            {props.errors.id && <div className="feedback">{props.errors.id}</div>}
                         </div>
 
                         <div className="form-group">
@@ -75,7 +84,6 @@ const Cadastro = () => {
                                 name="nome_projeto"
                                 required
                             />
-                            {props.errors.nome_projeto && <div className="feedback">{props.errors.nome_projeto}</div>}
                         </div>
 
                         <div className="form-group">
@@ -88,20 +96,6 @@ const Cadastro = () => {
                                 placeholder="Nome dos Integrantes"
                                 required
                             />
-                            {props.errors.integrantes && <div className="feedback">{props.errors.integrantes}</div>}
-                        </div>
-
-                        <div className="form-group">
-                            <input
-                                type="text"
-                                onChange={props.handleChange}
-                                onBlur={props.handleBlur}
-                                value={props.values.rm_integrantes}
-                                name="rm_integrantes"
-                                placeholder="RM dos Integrantes"
-                                required
-                            />
-                            {props.errors.rm_integrantes && <div className="feedback">{props.errors.rm_integrantes}</div>}
                         </div>
 
                         <div className="form-group">
@@ -114,7 +108,6 @@ const Cadastro = () => {
                                 placeholder="Proposta"
                                 required
                             />
-                            {props.errors.proposta && <div className="feedback">{props.errors.proposta}</div>}
                         </div>
 
                         <button type="submit">SALVAR</button>
@@ -124,8 +117,8 @@ const Cadastro = () => {
 
             <h2>Projetos Cadastrados:</h2>
             <ul className="lista-projetos">
-                {projetos.map((projeto, index) => (
-                    <li key={index} className="projeto-item">
+                {projetos.map((projeto) => (
+                    <li key={projeto.id} className="projeto-item">
                         <p><strong>ID:</strong> {projeto.id}</p>
                         <p><strong>Nome do Projeto:</strong> {projeto.nome_projeto}</p>
                         <p><strong>Integrantes:</strong> {projeto.integrantes}</p>
@@ -137,7 +130,6 @@ const Cadastro = () => {
             </ul>
         </div>
     );
-
 };
 
 export default Cadastro;
