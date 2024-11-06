@@ -24,7 +24,7 @@ const Alterar = () => {
     }, [clicou])
 
     function enviarDados(){
-        axios.put('http://localhost:8080/projeto', 
+        axios.put('http://localhost:8080/projetos', 
             dados
         ).then(response => console.log(response))
         .then(dados => {
